@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build: ./src
+    container_name: mnemosyne
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - go-app-network
+
+  db:
+    image: postgres:13
+    container_name: mnemosyne-db
+    env_file:
+      - pgdb.${ENV_SCOPE}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - go-app-network
+
+  nginx:
+    image: nginx:latest
+    container_name: mnemosyne-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app
+    networks:
+      - go-app-network
+
+networks:
+  go-app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+    
