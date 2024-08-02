@@ -16,7 +16,7 @@ help:
 
 # Run environment
 run: 
-	@$(MAKE) _run ENV_SCOPE=$((subst run_,,$@)_ENV_FILE)
+	@$(MAKE) _run ENV_SCOPE=$(subst run_,,$@)_ENV_FILE
 
 run_stage: 
 	@$(MAKE) _run ENV_SCOPE=$(STAGING_ENV_SCOPE)
