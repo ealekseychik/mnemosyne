@@ -1,4 +1,4 @@
-package handlers
+package middleware
 
 import (
 	"net/http"
@@ -30,7 +30,7 @@ func AuthMiddleware() gin.HandlerFunc {
 }
 
 func validateToken(token string) bool {
-	secret := os.Getenv("SECRET_KEY")
+	secret := []byte(os.Getenv("SECRET_KEY"))
 	validatedToken, err := jwt.Parse(token,
 		func(token *jwt.Token) (interface{}, error) {
 			return secret, nil

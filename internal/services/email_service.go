@@ -1,4 +1,4 @@
-package handlers
+package services
 
 import (
 	"os"
@@ -6,7 +6,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-func sendEmail(to, subject, body string) error {
+func SendEmail(to, subject, body string) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", os.Getenv("EMAIL_FROM"))
 	m.SetHeader("To", to)

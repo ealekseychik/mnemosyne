@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/ealekseychik/mnemosyne/internal/models"
+	"github.com/ealekseychik/mnemosyne/internal/services"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
@@ -17,7 +19,7 @@ func AdminLogin(c *gin.Context) {
 	password := c.PostForm("password")
 
 	if email == "" || password == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email and password are required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email and password are required", "email": email, "password": password})
 		return
 	}
 
@@ -38,7 +40,7 @@ func AdminLogin(c *gin.Context) {
 
 	token, err := generateToken(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token" + err.Error()})
 		return
 	}
 
@@ -46,7 +48,7 @@ func AdminLogin(c *gin.Context) {
 }
 
 func generateToken(user models.User) (string, error) {
-	secret := os.Getenv("SECRET_KEY")
+	secret := []byte(os.Getenv("SECRET_KEY"))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"username": user.Email,
@@ -124,6 +126,26 @@ func DeleteBook(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Book deleted successfully"})
+}
+
+func NotifyBookBorrower(c *gin.Context) {
+	bookGUID := c.Param("bookGUID")
+
+	var book models.Book
+	if err := models.DB.Where("guid = ?", bookGUID).First(&book).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		}
+		return
+	}
+
+	subject := "Return Book Reminder"
+	body := "Please return the book: " + book.Name + " by " + book.Author
+	if err := services.SendEmail(book.CurrentBorrower, subject, body); err != nil {
+		log.Printf("Failed to send email to %s: %v", book.CurrentBorrower, err)
+	}
 }
 
 func AdminLoginPage(c *gin.Context) {

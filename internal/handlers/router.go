@@ -1,6 +1,9 @@
 package handlers
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/ealekseychik/mnemosyne/internal/middleware"
+	"github.com/gin-gonic/gin"
+)
 
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
@@ -10,16 +13,18 @@ func SetupRouter() *gin.Engine {
 
 	// User endpoints
 	router.GET("/ping", Ping)
-	router.GET("/borrow/:bookGUID", BorrowBook)
+	router.GET("/borrow/:bookGUID", GetBookStatus)
+	router.POST("/borrow/:bookGUID", BorrowBook)
 
 	// Admin endpoints
 	admin := router.Group("/admin")
 	{
 		admin.POST("/login", AdminLogin)
-		admin.GET("/dashboard", AuthMiddleware(), AdminDashboard)
-		admin.POST("/book", AuthMiddleware(), AddBook)
-		admin.PUT("/book/:bookGUID", AuthMiddleware(), EditBook)
-		admin.DELETE("/book/:bookGUID", AuthMiddleware(), DeleteBook)
+		admin.GET("/dashboard", middleware.AuthMiddleware(), AdminDashboard)
+		admin.POST("/book", middleware.AuthMiddleware(), AddBook)
+		admin.PUT("/book/:bookGUID", middleware.AuthMiddleware(), EditBook)
+		admin.DELETE("/book/:bookGUID", middleware.AuthMiddleware(), DeleteBook)
+		admin.GET("/book/:bookGUID/ping", middleware.AuthMiddleware(), NotifyBookBorrower)
 	}
 
 	return router

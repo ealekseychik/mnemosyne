@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . ./
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /mnemosyne
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /mnemosyne cmd/server/main.go
 
 # Stage 2: Run the application
 FROM alpine:latest

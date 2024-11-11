@@ -18,6 +18,7 @@ func InitDB(dsn string) {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
+	// TODO: Move to more reliable migration tool
 	DB.AutoMigrate(&Book{}, &User{})
 }
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/ealekseychik/mnemosyne/internal/handlers"
 	"github.com/ealekseychik/mnemosyne/internal/models"
+	"github.com/ealekseychik/mnemosyne/internal/services"
 	"github.com/joho/godotenv"
 )
 
@@ -37,7 +38,7 @@ func main() {
 
 	models.SeedDB()
 
-	handlers.StartPeriodicTasks()
+	services.StartPeriodicTasks()
 
 	router := handlers.SetupRouter()
 

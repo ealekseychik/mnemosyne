@@ -1,4 +1,4 @@
-package handlers
+package services
 
 import (
 	"log"
@@ -28,7 +28,7 @@ func checkOverdueBooks() {
 	for _, book := range books {
 		subject := "Return Book Reminder"
 		body := "Please return the book: " + book.Name + " by " + book.Author
-		if err := sendEmail(book.CurrentBorrower, subject, body); err != nil {
+		if err := SendEmail(book.CurrentBorrower, subject, body); err != nil {
 			log.Printf("Failed to send email to %s: %v", book.CurrentBorrower, err)
 		}
 	}
